@@ -167,33 +167,9 @@ class _ChildHomeScreenState extends State<ChildHomeScreen> {
           ),
         ],
         onTap: (index) {
-          if (index == 2) {
-            // Logout
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Cerrar Sesión'),
-                content: const Text('¿Quieres salir?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancelar'),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      await authProvider.logout();
-                      if (mounted) {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          '/login',
-                          (route) => false,
-                        );
-                      }
-                    },
-                    child: const Text('Salir'),
-                  ),
-                ],
-              ),
-            );
+          if (index == 1 || index == 2) {
+            // Navigate to profile
+            Navigator.of(context).pushNamed('/child-profile');
           }
         },
       ),

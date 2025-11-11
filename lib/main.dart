@@ -11,7 +11,9 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/auth/child_login_screen.dart';
 import 'screens/parent/parent_dashboard.dart';
+import 'screens/parent/add_child_screen.dart';
 import 'screens/child/child_home_screen.dart';
+import 'screens/child/child_profile_screen.dart';
 import 'screens/child/topics_screen.dart';
 import 'screens/activities/activities_list_screen.dart';
 import 'screens/activities/quiz_activity_screen.dart';
@@ -59,9 +61,17 @@ class AprendoJugandoApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (_) => const ParentDashboard(),
               );
+            case '/add-child':
+              return MaterialPageRoute(
+                builder: (_) => const AddChildScreen(),
+              );
             case '/child-home':
               return MaterialPageRoute(
                 builder: (_) => const ChildHomeScreen(),
+              );
+            case '/child-profile':
+              return MaterialPageRoute(
+                builder: (_) => const ChildProfileScreen(),
               );
             case '/topics':
               final args = settings.arguments as Map<String, dynamic>;
