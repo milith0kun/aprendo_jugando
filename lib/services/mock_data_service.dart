@@ -1,0 +1,500 @@
+import '../models/user.dart';
+import '../models/child.dart';
+import '../models/subject.dart';
+import '../models/topic.dart';
+import '../models/activity.dart';
+import '../models/progress.dart';
+import '../models/gamification.dart';
+
+class MockDataService {
+  // Mock Users
+  static final List<User> mockUsers = [
+    User(
+      id: 'user1',
+      email: 'padre@ejemplo.com',
+      firstName: 'Juan',
+      lastName: 'Pérez',
+      userType: 'parent',
+      preferences: UserPreferences(),
+      lastLogin: DateTime.now(),
+      createdAt: DateTime.now().subtract(const Duration(days: 30)),
+    ),
+  ];
+
+  // Mock Children
+  static final List<Child> mockChildren = [
+    Child(
+      id: 'child1',
+      parentId: 'user1',
+      username: 'sofia',
+      displayName: 'Sofía',
+      dateOfBirth: DateTime(2016, 5, 15),
+      grade: 2,
+      pin: '1234',
+      avatar: AvatarConfig(
+        baseType: 'girl1',
+        accessories: ['hat1'],
+        skinColor: '#FFD1A7',
+        hairColor: '#4A2C0A',
+        eyeColor: '#2C1F14',
+      ),
+      preferences: ChildPreferences(),
+      lastActivity: DateTime.now().subtract(const Duration(hours: 2)),
+      totalMinutes: 180,
+    ),
+    Child(
+      id: 'child2',
+      parentId: 'user1',
+      username: 'marco',
+      displayName: 'Marco',
+      dateOfBirth: DateTime(2014, 8, 20),
+      grade: 4,
+      pin: '5678',
+      avatar: AvatarConfig(
+        baseType: 'boy1',
+        accessories: ['glasses1'],
+        skinColor: '#D4A76A',
+        hairColor: '#2C1F14',
+        eyeColor: '#4A2C0A',
+      ),
+      preferences: ChildPreferences(),
+      lastActivity: DateTime.now().subtract(const Duration(days: 1)),
+      totalMinutes: 320,
+    ),
+  ];
+
+  // Mock Subjects
+  static final List<Subject> mockSubjects = [
+    Subject(
+      id: 'subject1',
+      name: 'Matemáticas',
+      description: 'Aprende números, operaciones y más',
+      icon: 'calculate',
+      color: '#2196F3',
+      order: 1,
+    ),
+    Subject(
+      id: 'subject2',
+      name: 'Lengua',
+      description: 'Mejora tu lectura y escritura',
+      icon: 'menu_book',
+      color: '#4CAF50',
+      order: 2,
+    ),
+  ];
+
+  // Mock Topics
+  static final List<Topic> mockTopics = [
+    // Mathematics Topics
+    Topic(
+      id: 'topic1',
+      subjectId: 'subject1',
+      name: 'Suma y Resta',
+      description: 'Aprende a sumar y restar números',
+      grades: [1, 2, 3],
+      prerequisites: [],
+      estimatedMinutes: 60,
+      order: 1,
+      icon: 'add_circle',
+    ),
+    Topic(
+      id: 'topic2',
+      subjectId: 'subject1',
+      name: 'Multiplicación',
+      description: 'Domina las tablas de multiplicar',
+      grades: [2, 3, 4],
+      prerequisites: ['topic1'],
+      estimatedMinutes: 90,
+      order: 2,
+      icon: 'close',
+    ),
+    Topic(
+      id: 'topic3',
+      subjectId: 'subject1',
+      name: 'Fracciones',
+      description: 'Entiende las partes de un todo',
+      grades: [3, 4, 5],
+      prerequisites: ['topic2'],
+      estimatedMinutes: 120,
+      order: 3,
+      icon: 'pie_chart',
+    ),
+    // Language Topics
+    Topic(
+      id: 'topic4',
+      subjectId: 'subject2',
+      name: 'Lectoescritura',
+      description: 'Aprende a leer y escribir correctamente',
+      grades: [1, 2],
+      prerequisites: [],
+      estimatedMinutes: 90,
+      order: 1,
+      icon: 'edit',
+    ),
+    Topic(
+      id: 'topic5',
+      subjectId: 'subject2',
+      name: 'Comprensión Lectora',
+      description: 'Entiende lo que lees',
+      grades: [2, 3, 4],
+      prerequisites: ['topic4'],
+      estimatedMinutes: 100,
+      order: 2,
+      icon: 'auto_stories',
+    ),
+    Topic(
+      id: 'topic6',
+      subjectId: 'subject2',
+      name: 'Ortografía',
+      description: 'Escribe sin errores',
+      grades: [3, 4, 5, 6],
+      prerequisites: ['topic4'],
+      estimatedMinutes: 80,
+      order: 3,
+      icon: 'spellcheck',
+    ),
+  ];
+
+  // Mock Activities
+  static final List<Activity> mockActivities = [
+    // Suma y Resta Activities
+    Activity(
+      id: 'activity1',
+      topicId: 'topic1',
+      type: 'quiz',
+      title: 'Suma de Números de Dos Dígitos',
+      instructions: 'Resuelve las siguientes sumas. ¡Tómate tu tiempo!',
+      difficulty: 2,
+      recommendedGrade: 2,
+      estimatedMinutes: 15,
+      points: 100,
+      content: {
+        'questions': [
+          {
+            'id': 'q1',
+            'text': '¿Cuánto es 23 + 45?',
+            'type': 'multiple_choice',
+            'options': ['58', '68', '78', '88'],
+            'correctAnswer': '68',
+            'explanation': '23 + 45 = 68. Suma primero las unidades (3+5=8) y luego las decenas (2+4=6).',
+            'hints': [
+              'Recuerda: suma primero las unidades (3+5) y luego las decenas (2+4)',
+            ],
+            'points': 10,
+          },
+          {
+            'id': 'q2',
+            'text': '¿Cuánto es 37 + 28?',
+            'type': 'multiple_choice',
+            'options': ['55', '65', '75', '85'],
+            'correctAnswer': '65',
+            'explanation': '37 + 28 = 65. 7+8=15 (llevas 1), 3+2+1=6.',
+            'hints': ['Las unidades suman 15, llevas 1 a las decenas'],
+            'points': 10,
+          },
+          {
+            'id': 'q3',
+            'text': '¿Cuánto es 56 + 17?',
+            'type': 'multiple_choice',
+            'options': ['63', '73', '83', '93'],
+            'correctAnswer': '73',
+            'explanation': '56 + 17 = 73.',
+            'hints': ['6 + 7 = 13, llevas 1'],
+            'points': 10,
+          },
+          {
+            'id': 'q4',
+            'text': '¿Cuánto es 84 - 32?',
+            'type': 'multiple_choice',
+            'options': ['42', '52', '62', '72'],
+            'correctAnswer': '52',
+            'explanation': '84 - 32 = 52. Resta las unidades (4-2=2) y las decenas (8-3=5).',
+            'hints': ['Resta primero las unidades, luego las decenas'],
+            'points': 10,
+          },
+          {
+            'id': 'q5',
+            'text': '¿Cuánto es 91 - 47?',
+            'type': 'multiple_choice',
+            'options': ['34', '44', '54', '64'],
+            'correctAnswer': '44',
+            'explanation': '91 - 47 = 44. Necesitas reagrupar.',
+            'hints': ['No puedes hacer 1-7, necesitas pedir prestado de las decenas'],
+            'points': 10,
+          },
+        ],
+      },
+      imageUrls: [],
+      createdAt: DateTime.now().subtract(const Duration(days: 10)),
+    ),
+    Activity(
+      id: 'activity2',
+      topicId: 'topic1',
+      type: 'quiz',
+      title: 'Sumas y Restas Simples',
+      instructions: 'Practica con números más pequeños',
+      difficulty: 1,
+      recommendedGrade: 1,
+      estimatedMinutes: 10,
+      points: 80,
+      content: {
+        'questions': [
+          {
+            'id': 'q1',
+            'text': '¿Cuánto es 5 + 3?',
+            'type': 'multiple_choice',
+            'options': ['6', '7', '8', '9'],
+            'correctAnswer': '8',
+            'explanation': '5 + 3 = 8',
+            'hints': ['Cuenta con tus dedos'],
+            'points': 10,
+          },
+          {
+            'id': 'q2',
+            'text': '¿Cuánto es 9 - 4?',
+            'type': 'multiple_choice',
+            'options': ['3', '4', '5', '6'],
+            'correctAnswer': '5',
+            'explanation': '9 - 4 = 5',
+            'hints': ['Empieza desde 9 y cuenta hacia atrás'],
+            'points': 10,
+          },
+          {
+            'id': 'q3',
+            'text': '¿Cuánto es 7 + 6?',
+            'type': 'multiple_choice',
+            'options': ['11', '12', '13', '14'],
+            'correctAnswer': '13',
+            'explanation': '7 + 6 = 13',
+            'hints': ['7 + 3 = 10, luego suma 3 más'],
+            'points': 10,
+          },
+        ],
+      },
+      imageUrls: [],
+      createdAt: DateTime.now().subtract(const Duration(days: 8)),
+    ),
+    // Multiplicación Activity
+    Activity(
+      id: 'activity3',
+      topicId: 'topic2',
+      type: 'quiz',
+      title: 'Tablas del 2 y 3',
+      instructions: 'Practica las tablas de multiplicar del 2 y del 3',
+      difficulty: 2,
+      recommendedGrade: 3,
+      estimatedMinutes: 12,
+      points: 90,
+      content: {
+        'questions': [
+          {
+            'id': 'q1',
+            'text': '¿Cuánto es 2 × 4?',
+            'type': 'multiple_choice',
+            'options': ['6', '8', '10', '12'],
+            'correctAnswer': '8',
+            'explanation': '2 × 4 = 8. Es como sumar 2 + 2 + 2 + 2.',
+            'hints': ['Suma 2 cuatro veces'],
+            'points': 10,
+          },
+          {
+            'id': 'q2',
+            'text': '¿Cuánto es 3 × 5?',
+            'type': 'multiple_choice',
+            'options': ['12', '15', '18', '21'],
+            'correctAnswer': '15',
+            'explanation': '3 × 5 = 15',
+            'hints': ['3 + 3 + 3 + 3 + 3'],
+            'points': 10,
+          },
+          {
+            'id': 'q3',
+            'text': '¿Cuánto es 2 × 8?',
+            'type': 'multiple_choice',
+            'options': ['14', '16', '18', '20'],
+            'correctAnswer': '16',
+            'explanation': '2 × 8 = 16',
+            'hints': ['El doble de 8'],
+            'points': 10,
+          },
+        ],
+      },
+      imageUrls: [],
+      createdAt: DateTime.now().subtract(const Duration(days: 7)),
+    ),
+    // Language Activities
+    Activity(
+      id: 'activity4',
+      topicId: 'topic5',
+      type: 'quiz',
+      title: 'Comprensión de Texto Corto',
+      instructions: 'Lee el texto y responde las preguntas',
+      difficulty: 2,
+      recommendedGrade: 2,
+      estimatedMinutes: 15,
+      points: 100,
+      content: {
+        'text':
+            'El perro de Ana se llama Max. Max es un perro grande y peludo. Le gusta jugar en el parque y correr detrás de la pelota. Su color favorito es el rojo. Ana y Max son mejores amigos.',
+        'questions': [
+          {
+            'id': 'q1',
+            'text': '¿Cómo se llama el perro?',
+            'type': 'multiple_choice',
+            'options': ['Max', 'Ana', 'Peludo', 'Parque'],
+            'correctAnswer': 'Max',
+            'explanation': 'El texto dice: "El perro de Ana se llama Max".',
+            'hints': ['Busca la primera oración'],
+            'points': 10,
+          },
+          {
+            'id': 'q2',
+            'text': '¿Qué le gusta hacer a Max?',
+            'type': 'multiple_choice',
+            'options': [
+              'Dormir',
+              'Comer',
+              'Jugar en el parque',
+              'Ver televisión'
+            ],
+            'correctAnswer': 'Jugar en el parque',
+            'explanation': 'El texto menciona que le gusta jugar en el parque.',
+            'hints': ['Lee la tercera oración'],
+            'points': 10,
+          },
+          {
+            'id': 'q3',
+            'text': '¿De qué color es Max?',
+            'type': 'multiple_choice',
+            'options': ['No se menciona', 'Rojo', 'Negro', 'Blanco'],
+            'correctAnswer': 'No se menciona',
+            'explanation': 'El texto no dice de qué color es Max. Solo dice que su color favorito es el rojo.',
+            'hints': ['Cuidado, el rojo es su color favorito, no el color de su pelaje'],
+            'points': 10,
+          },
+        ],
+      },
+      imageUrls: [],
+      createdAt: DateTime.now().subtract(const Duration(days: 6)),
+    ),
+  ];
+
+  // Mock Progress
+  static final List<Progress> mockProgress = [
+    Progress(
+      id: 'progress1',
+      childId: 'child1',
+      activityId: 'activity1',
+      status: 'completed',
+      attempts: 2,
+      completed: true,
+      highestScore: 90,
+      totalTimeSeconds: 720,
+      hintsUsed: 2,
+      attemptsList: [
+        Attempt(
+          attemptNumber: 1,
+          startTime: DateTime.now().subtract(const Duration(days: 2)),
+          endTime: DateTime.now().subtract(const Duration(days: 2, hours: -1)),
+          durationSeconds: 450,
+          score: 70,
+          pointsEarned: 70,
+          coinsEarned: 35,
+          experienceEarned: 70,
+        ),
+        Attempt(
+          attemptNumber: 2,
+          startTime: DateTime.now().subtract(const Duration(days: 1)),
+          endTime: DateTime.now().subtract(const Duration(days: 1, hours: -1)),
+          durationSeconds: 390,
+          score: 90,
+          pointsEarned: 90,
+          coinsEarned: 45,
+          experienceEarned: 90,
+        ),
+      ],
+      lastAttemptDate: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+    Progress(
+      id: 'progress2',
+      childId: 'child1',
+      activityId: 'activity2',
+      status: 'completed',
+      attempts: 1,
+      completed: true,
+      highestScore: 100,
+      totalTimeSeconds: 300,
+      hintsUsed: 0,
+      attemptsList: [
+        Attempt(
+          attemptNumber: 1,
+          startTime: DateTime.now().subtract(const Duration(hours: 3)),
+          endTime: DateTime.now().subtract(const Duration(hours: 2)),
+          durationSeconds: 300,
+          score: 100,
+          pointsEarned: 80,
+          coinsEarned: 40,
+          experienceEarned: 100,
+        ),
+      ],
+      lastAttemptDate: DateTime.now().subtract(const Duration(hours: 2)),
+    ),
+  ];
+
+  // Mock Gamification
+  static final List<Gamification> mockGamification = [
+    Gamification(
+      id: 'gamif1',
+      childId: 'child1',
+      totalPoints: 350,
+      currentCoins: 125,
+      totalCoinsEarned: 150,
+      experiencePoints: 450,
+      currentLevel: 5,
+      experienceForNextLevel: 500,
+      streak: StreakInfo(
+        currentStreak: 5,
+        longestStreak: 7,
+        lastActivityDate: DateTime.now().subtract(const Duration(hours: 2)),
+      ),
+      unlockedAchievements: [
+        Achievement(
+          id: 'ach1',
+          code: 'FIRST_VICTORY',
+          name: 'Primera Victoria',
+          description: '¡Completaste tu primera actividad!',
+          iconUrl: 'trophy',
+          category: 'bronze',
+          rewardPoints: 50,
+          unlockedDate: DateTime.now().subtract(const Duration(days: 10)),
+        ),
+        Achievement(
+          id: 'ach2',
+          code: 'MARATHON_5',
+          name: 'Maratonista',
+          description: '5 días consecutivos de aprendizaje',
+          iconUrl: 'emoji_events',
+          category: 'silver',
+          rewardPoints: 100,
+          unlockedDate: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+      ],
+    ),
+    Gamification(
+      id: 'gamif2',
+      childId: 'child2',
+      totalPoints: 580,
+      currentCoins: 210,
+      totalCoinsEarned: 290,
+      experiencePoints: 750,
+      currentLevel: 8,
+      experienceForNextLevel: 800,
+      streak: StreakInfo(
+        currentStreak: 3,
+        longestStreak: 10,
+        lastActivityDate: DateTime.now().subtract(const Duration(days: 1)),
+      ),
+      unlockedAchievements: [],
+    ),
+  ];
+}
