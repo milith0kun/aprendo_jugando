@@ -35,7 +35,7 @@ class ContentProvider extends ChangeNotifier {
     }
 
     _isLoading = true;
-    notifyListeners();
+    Future.microtask(() => notifyListeners());
 
     try {
       final topics = await _contentService.getTopicsBySubject(subjectId, grade: grade);
@@ -45,7 +45,7 @@ class ContentProvider extends ChangeNotifier {
       return [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      Future.microtask(() => notifyListeners());
     }
   }
 
@@ -55,7 +55,7 @@ class ContentProvider extends ChangeNotifier {
     }
 
     _isLoading = true;
-    notifyListeners();
+    Future.microtask(() => notifyListeners());
 
     try {
       final activities = await _contentService.getActivitiesByTopic(topicId);
@@ -65,7 +65,7 @@ class ContentProvider extends ChangeNotifier {
       return [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      Future.microtask(() => notifyListeners());
     }
   }
 
