@@ -281,7 +281,7 @@ class _ChildHomeScreenState extends State<ChildHomeScreen> {
               const SizedBox(width: 24),
               _buildStatItem(
                 icon: Icons.emoji_events_rounded,
-                value: '${gamification.achievementsUnlocked.length}',
+                value: '${gamification.unlockedAchievements.length}',
                 label: 'logros',
                 color: AppTheme.rewardColor,
               ),
