@@ -151,6 +151,11 @@ class _TopicsScreenState extends State<TopicsScreen> {
         return Icons.auto_stories;
       case 'spellcheck':
         return Icons.spellcheck;
+      case 'calculator':
+      case 'calculate':
+        return Icons.calculate;
+      case 'abc':
+        return Icons.abc;
       default:
         return Icons.school;
     }
