@@ -13,7 +13,7 @@ class ContentService {
   // Get topics by subject
   Future<List<Topic>> getTopicsBySubject(String subjectId, {int? grade}) async {
     await Future.delayed(const Duration(milliseconds: 300));
-
+    
     var topics = MockDataService.mockTopics
         .where((t) => t.subjectId == subjectId)
         .toList();
@@ -43,7 +43,7 @@ class ContentService {
     int? difficulty,
   }) async {
     await Future.delayed(const Duration(milliseconds: 300));
-
+    
     var activities = MockDataService.mockActivities
         .where((a) => a.topicId == topicId)
         .toList();

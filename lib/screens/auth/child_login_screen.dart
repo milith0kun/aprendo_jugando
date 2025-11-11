@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../config/app_theme.dart';
+import '../../services/mock_data_service.dart';
 
 class ChildLoginScreen extends StatefulWidget {
   const ChildLoginScreen({Key? key}) : super(key: key);
@@ -59,8 +60,8 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final children = authProvider.getChildren();
+    // Obtener niños directamente del servicio mock para que funcione sin login de padre
+    final children = MockDataService.mockChildren;
 
     return Scaffold(
       appBar: AppBar(
