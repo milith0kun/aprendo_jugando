@@ -47,55 +47,22 @@ class _TopicsScreenState extends State<TopicsScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [subjectColor, subjectColor.withOpacity(0.7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: subjectColor.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  Expanded(
-                    child: Text(
-                      subject?.name ?? 'Temas',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            color: Colors.black26,
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: AppTheme.cardBackground,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          subject?.name ?? 'Temas',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            color: AppTheme.borderColor,
           ),
         ),
       ),
@@ -109,69 +76,53 @@ class _TopicsScreenState extends State<TopicsScreen> {
                       Icon(
                         Icons.lightbulb_outline_rounded,
                         size: 80,
-                        color: Colors.grey[400],
+                        color: AppTheme.textTertiary,
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'No hay temas disponibles',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: Colors.grey[600],
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: AppTheme.textSecondary,
                             ),
                       ),
                     ],
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   itemCount: _topics.length,
                   itemBuilder: (context, index) {
                     final topic = _topics[index];
-                    return _buildTopicCard(context, topic, index);
+                    return _buildMinimalistTopicCard(context, topic, index);
                   },
                 ),
     );
   }
 
-  Widget _buildTopicCard(BuildContext context, dynamic topic, int index) {
-    final subjectColor = _getSubjectColor(null);
-    
-    // Colores específicos por tema
+  Widget _buildMinimalistTopicCard(BuildContext context, dynamic topic, int index) {
+    // Colores específicos por tema (versión minimalista)
     final topicColors = {
-      'topic1': const Color(0xFF5C6BC0), // Suma y Resta - Azul índigo
-      'topic2': const Color(0xFF42A5F5), // Multiplicación - Azul cielo
-      'topic2b': AppTheme.divisionColor, // División - Rosa
-      'topic3': AppTheme.fractionColor, // Fracciones - Púrpura
-      'topic4': const Color(0xFF26A69A), // Lectoescritura - Teal
-      'topic5': const Color(0xFF66BB6A), // Comprensión - Verde
-      'topic6': AppTheme.spellingColor, // Ortografía - Azul
-      'topic7': AppTheme.grammarColor, // Gramática - Naranja
+      'topic1': AppTheme.mathColor, // Suma y Resta
+      'topic2': AppTheme.spellingColor, // Multiplicación
+      'topic2b': AppTheme.divisionColor, // División
+      'topic3': AppTheme.fractionColor, // Fracciones
+      'topic4': AppTheme.languageColor, // Lectoescritura
+      'topic5': AppTheme.successColor, // Comprensión
+      'topic6': AppTheme.spellingColor, // Ortografía
+      'topic7': AppTheme.grammarColor, // Gramática
     };
 
-    final cardColor = topicColors[topic.id] ?? subjectColor;
-    
+    final cardColor = topicColors[topic.id] ?? _getSubjectColor(null);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            cardColor.withOpacity(0.15),
-            cardColor.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: AppTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: cardColor.withOpacity(0.3),
-          width: 2,
+          color: AppTheme.borderColor,
+          width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: cardColor.withOpacity(0.15),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -182,96 +133,86 @@ class _TopicsScreenState extends State<TopicsScreen> {
               arguments: {'topicId': topic.id},
             );
           },
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: const EdgeInsets.all(20),
             child: Row(
               children: [
+                // Ícono minimalista
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [cardColor, cardColor.withOpacity(0.8)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: cardColor.withOpacity(0.4),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: cardColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _getIconData(topic.icon),
-                    color: Colors.white,
-                    size: 36,
+                    color: cardColor,
+                    size: 28,
                   ),
                 ),
                 const SizedBox(width: 16),
+
+                // Información del tema
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         topic.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: cardColor,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
                             ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         topic.description,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF5A6C7D),
-                            ),
+                        style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: cardColor.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.timer_outlined, size: 16, color: cardColor),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '~${topic.estimatedMinutes} min',
-                                  style: TextStyle(
-                                    color: cardColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
+                      // Badge de tiempo
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: AppTheme.surfaceColor,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppTheme.borderColor,
+                            width: 1,
                           ),
-                        ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.schedule_rounded,
+                              size: 14,
+                              color: AppTheme.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '~${topic.estimatedMinutes} min',
+                              style: TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: cardColor.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: cardColor,
-                    size: 18,
-                  ),
+
+                // Flecha
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppTheme.textTertiary,
+                  size: 18,
                 ),
               ],
             ),
@@ -295,24 +236,24 @@ class _TopicsScreenState extends State<TopicsScreen> {
   IconData _getIconData(String iconName) {
     switch (iconName) {
       case 'add_circle':
-        return Icons.add_circle;
+        return Icons.add_circle_rounded;
       case 'close':
-        return Icons.close;
+        return Icons.close_rounded;
       case 'pie_chart':
-        return Icons.pie_chart;
+        return Icons.pie_chart_rounded;
       case 'edit':
-        return Icons.edit;
+        return Icons.edit_rounded;
       case 'auto_stories':
-        return Icons.auto_stories;
+        return Icons.auto_stories_rounded;
       case 'spellcheck':
-        return Icons.spellcheck;
+        return Icons.spellcheck_rounded;
       case 'calculator':
       case 'calculate':
-        return Icons.calculate;
+        return Icons.calculate_rounded;
       case 'abc':
-        return Icons.abc;
+        return Icons.abc_rounded;
       default:
-        return Icons.school;
+        return Icons.school_rounded;
     }
   }
 }
