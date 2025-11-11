@@ -5,6 +5,9 @@ import '../../providers/progress_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/activity.dart';
 import '../../config/app_theme.dart';
+import '../../widgets/animated_feedback_card.dart';
+import '../../widgets/educational_button.dart';
+import '../../widgets/animated_progress_bar.dart';
 
 class QuizActivityScreen extends StatefulWidget {
   final String activityId;
@@ -15,7 +18,8 @@ class QuizActivityScreen extends StatefulWidget {
   State<QuizActivityScreen> createState() => _QuizActivityScreenState();
 }
 
-class _QuizActivityScreenState extends State<QuizActivityScreen> {
+class _QuizActivityScreenState extends State<QuizActivityScreen>
+    with TickerProviderStateMixin {
   Activity? _activity;
   List<QuizQuestion> _questions = [];
   int _currentQuestionIndex = 0;
@@ -28,11 +32,43 @@ class _QuizActivityScreenState extends State<QuizActivityScreen> {
   bool _showFeedback = false;
   bool? _lastAnswerCorrect;
 
+  late AnimationController _questionController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
     _loadActivity();
     _startTime = DateTime.now();
+
+    // Animación para transición de preguntas
+    _questionController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _questionController,
+      curve: Curves.easeOut,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _questionController,
+      curve: Curves.easeIn,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _questionController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadActivity() async {
@@ -46,6 +82,7 @@ class _QuizActivityScreenState extends State<QuizActivityScreen> {
         _questions = content.questions;
         _isLoading = false;
       });
+      _questionController.forward();
     }
   }
 
@@ -65,15 +102,24 @@ class _QuizActivityScreenState extends State<QuizActivityScreen> {
         _score += currentQuestion.points;
       }
     });
+
+    // Vibración ligera para feedback háptico
+    // HapticFeedback.lightImpact(); // Descomentardescomenta si deseas agregar vibración
   }
 
-  void _nextQuestion() {
+  void _nextQuestion() async {
     if (_currentQuestionIndex < _questions.length - 1) {
+      // Animar salida de pregunta actual
+      await _questionController.reverse();
+
       setState(() {
         _currentQuestionIndex++;
         _showFeedback = false;
         _lastAnswerCorrect = null;
       });
+
+      // Animar entrada de nueva pregunta
+      _questionController.forward();
     } else {
       _completeActivity();
     }
@@ -89,18 +135,37 @@ class _QuizActivityScreenState extends State<QuizActivityScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Row(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
             children: [
-              Icon(Icons.lightbulb, color: AppTheme.accentColor),
-              SizedBox(width: 8),
-              Text('Pista'),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentColor.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.lightbulb_rounded,
+                  color: AppTheme.accentColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text('💡 Pista'),
             ],
           ),
-          content: Text(currentQuestion.hints.first),
+          content: Text(
+            currentQuestion.hints.first,
+            style: const TextStyle(fontSize: 16, height: 1.5),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Entendido'),
+              child: const Text(
+                'Entendido',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         ),
@@ -146,15 +211,37 @@ class _QuizActivityScreenState extends State<QuizActivityScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                'Cargando actividad...',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
+          ),
+        ),
       );
     }
 
     if (_activity == null || _questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Error')),
-        body: const Center(child: Text('No se pudo cargar la actividad')),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: AppTheme.dangerColor),
+              SizedBox(height: 16),
+              Text('No se pudo cargar la actividad'),
+            ],
+          ),
+        ),
       );
     }
 
@@ -166,14 +253,26 @@ class _QuizActivityScreenState extends State<QuizActivityScreen> {
         final shouldExit = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('¿Salir?'),
-            content: const Text('Si sales ahora, perderás tu progreso.'),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Row(
+              children: [
+                Icon(Icons.warning_rounded, color: AppTheme.dangerColor),
+                SizedBox(width: 12),
+                Text('¿Salir?'),
+              ],
+            ),
+            content: const Text('Si sales ahora, perderás tu progreso en esta actividad.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Continuar'),
+                child: const Text('Continuar actividad'),
               ),
-              TextButton(
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.dangerColor,
+                ),
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text('Salir'),
               ),
@@ -183,131 +282,213 @@ class _QuizActivityScreenState extends State<QuizActivityScreen> {
         return shouldExit ?? false;
       },
       child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
         appBar: AppBar(
+          backgroundColor: AppTheme.cardBackground,
           title: Text(_activity!.title),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey[300],
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.secondaryColor),
-            ),
-          ),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Pregunta ${_currentQuestionIndex + 1} de ${_questions.length}',
-                    style: Theme.of(context).textTheme.titleMedium,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.rewardColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  if (currentQuestion.hints.isNotEmpty && !_showFeedback)
-                    OutlinedButton.icon(
-                      onPressed: _useHint,
-                      icon: const Icon(Icons.lightbulb_outline),
-                      label: const Text('Pista'),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    currentQuestion.text,
-                    style: Theme.of(context).textTheme.headlineSmall,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.stars_rounded,
+                        size: 18,
+                        color: AppTheme.rewardColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$_score pts',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.rewardColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
-              ...currentQuestion.options.map((option) {
-                final isSelected = _userAnswers[_currentQuestionIndex] == option;
-                Color? buttonColor;
-
-                if (_showFeedback && isSelected) {
-                  buttonColor = _lastAnswerCorrect! ? AppTheme.secondaryColor : AppTheme.dangerColor;
-                }
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: ElevatedButton(
-                    onPressed: _showFeedback ? null : () => _handleAnswer(option),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: buttonColor,
-                      padding: const EdgeInsets.all(20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      option,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: buttonColor != null ? Colors.white : null,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-              if (_showFeedback) ...[
-                const SizedBox(height: 24),
-                Card(
-                  color: _lastAnswerCorrect!
-                      ? AppTheme.secondaryColor.withOpacity(0.1)
-                      : AppTheme.dangerColor.withOpacity(0.1),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              _lastAnswerCorrect! ? Icons.check_circle : Icons.cancel,
-                              color: _lastAnswerCorrect!
-                                  ? AppTheme.secondaryColor
-                                  : AppTheme.dangerColor,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _lastAnswerCorrect! ? '¡Correcto!' : 'Incorrecto',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: _lastAnswerCorrect!
-                                        ? AppTheme.secondaryColor
-                                        : AppTheme.dangerColor,
-                                  ),
-                            ),
-                          ],
+            ),
+          ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: AnimatedProgressBar(
+                progress: progress,
+                color: AppTheme.successColor,
+                height: 6,
+              ),
+            ),
+          ),
+        ),
+        body: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header con contador y pista
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.primaryColor.withOpacity(0.3),
+                            width: 1.5,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        child: Text(
+                          'Pregunta ${_currentQuestionIndex + 1} de ${_questions.length}',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                      if (currentQuestion.hints.isNotEmpty && !_showFeedback)
+                        OutlinedButton.icon(
+                          onPressed: _useHint,
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: AppTheme.accentColor.withOpacity(0.5),
+                              width: 1.5,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.lightbulb_outline_rounded,
+                            color: AppTheme.accentColor,
+                          ),
+                          label: const Text(
+                            'Pista',
+                            style: TextStyle(color: AppTheme.accentColor),
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Pregunta
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardBackground,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppTheme.borderColor,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.help_outline_rounded,
+                          size: 40,
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(height: 16),
                         Text(
-                          currentQuestion.explanation,
-                          style: Theme.of(context).textTheme.bodyLarge,
+                          currentQuestion.text,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _nextQuestion,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(16),
-                  ),
-                  child: Text(
-                    _currentQuestionIndex < _questions.length - 1
-                        ? 'Siguiente Pregunta'
-                        : 'Ver Resultados',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
-              ],
-            ],
+
+                  const SizedBox(height: 24),
+
+                  // Opciones de respuesta
+                  ...currentQuestion.options.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final option = entry.value;
+                    final isSelected = _userAnswers[_currentQuestionIndex] == option;
+                    final isCorrectAnswer = _showFeedback && isSelected && _lastAnswerCorrect == true;
+                    final isIncorrectAnswer = _showFeedback && isSelected && _lastAnswerCorrect == false;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: EducationalButton(
+                        text: option,
+                        onPressed: _showFeedback ? null : () => _handleAnswer(option),
+                        isSelected: isSelected,
+                        isCorrect: isCorrectAnswer,
+                        isIncorrect: isIncorrectAnswer,
+                        showFeedback: _showFeedback,
+                        icon: Icons.radio_button_unchecked_rounded,
+                      ),
+                    );
+                  }).toList(),
+
+                  // Feedback
+                  if (_showFeedback && _lastAnswerCorrect != null) ...[
+                    const SizedBox(height: 8),
+                    AnimatedFeedbackCard(
+                      isCorrect: _lastAnswerCorrect!,
+                      explanation: currentQuestion.explanation,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _nextQuestion,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.all(16),
+                          backgroundColor: _lastAnswerCorrect!
+                              ? AppTheme.successColor
+                              : AppTheme.primaryColor,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _currentQuestionIndex < _questions.length - 1
+                                  ? 'Siguiente Pregunta'
+                                  : 'Ver Resultados',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              _currentQuestionIndex < _questions.length - 1
+                                  ? Icons.arrow_forward_rounded
+                                  : Icons.emoji_events_rounded,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
