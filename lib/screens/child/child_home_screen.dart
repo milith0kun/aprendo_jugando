@@ -44,399 +44,304 @@ class _ChildHomeScreenState extends State<ChildHomeScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppTheme.primaryColor, AppTheme.primaryColor.withOpacity(0.7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryColor.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 28,
-                      backgroundColor: AppTheme.accentColor,
-                      child: Text(
-                        child.displayName[0].toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 26,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '¡Hola, ${child.displayName}!',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppTheme.accentColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.star, color: Colors.white, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Nivel ${gamification?.currentLevel ?? 1}',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accentColor,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.accentColor.withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.monetization_on, color: Colors.white, size: 22),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${gamification?.currentCoins ?? 0}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header minimalista
+            _buildMinimalistHeader(child, gamification),
+
+            // Progress card limpia
+            if (gamification != null)
+              _buildProgressCard(context, gamification),
+
+            // Sección de materias
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '¿Qué quieres aprender hoy?',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
               ),
             ),
+
+            // Grid de materias
+            Expanded(
+              child: contentProvider.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : contentProvider.subjects.isEmpty
+                      ? const Center(child: Text('No hay áreas disponibles'))
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(24),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.9,
+                          ),
+                          itemCount: contentProvider.subjects.length,
+                          itemBuilder: (context, index) {
+                            final subject = contentProvider.subjects[index];
+                            return _buildMinimalistSubjectCard(context, subject);
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _buildMinimalistBottomNav(context, authProvider),
+    );
+  }
+
+  Widget _buildMinimalistHeader(dynamic child, dynamic gamification) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBackground,
+        border: Border(
+          bottom: BorderSide(
+            color: AppTheme.borderColor,
+            width: 1,
           ),
         ),
       ),
-      body: Column(
+      child: Row(
         children: [
-          if (gamification != null)
-            Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.accentColor.withOpacity(0.15),
-                    AppTheme.accentColor.withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppTheme.accentColor.withOpacity(0.3),
-                  width: 2,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppTheme.accentColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.trending_up, color: Colors.white, size: 20),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Nivel ${gamification.currentLevel}',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${gamification.experiencePoints}/${gamification.experienceForNextLevel} XP',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        FractionallySizedBox(
-                          widthFactor: gamification.progressToNextLevel,
-                          child: Container(
-                            height: 16,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [AppTheme.accentColor, AppTheme.accentColor.withOpacity(0.7)],
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.accentColor.withOpacity(0.4),
-                                  blurRadius: 6,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFFF6B35), Color(0xFFFF8C42)],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.local_fire_department, color: Colors.white, size: 20),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Racha: ${gamification.streak.currentStreak} días',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+          // Avatar simple
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppTheme.primaryColor.withOpacity(0.3),
+                width: 2,
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
+            child: Center(
+              child: Text(
+                child.displayName[0].toUpperCase(),
+                style: TextStyle(
+                  color: AppTheme.primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Información del niño
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.school, color: AppTheme.primaryColor, size: 28),
-                const SizedBox(width: 10),
                 Text(
-                  '¿Qué quieres aprender hoy?',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  '¡Hola, ${child.displayName}!',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    _buildInfoChip(
+                      icon: Icons.star_rounded,
+                      label: 'Nivel ${gamification?.currentLevel ?? 1}',
+                      color: AppTheme.accentColor,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildInfoChip(
+                      icon: Icons.monetization_on_rounded,
+                      label: '${gamification?.currentCoins ?? 0}',
+                      color: AppTheme.rewardColor,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          Expanded(
-            child: contentProvider.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : contentProvider.subjects.isEmpty
-                    ? const Center(child: Text('No hay áreas disponibles'))
-                    : GridView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.85,
-                        ),
-                        itemCount: contentProvider.subjects.length,
-                        itemBuilder: (context, index) {
-                          final subject = contentProvider.subjects[index];
-                          return _buildSubjectCard(context, subject);
-                        },
-                      ),
-          ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -3),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
-          child: BottomNavigationBar(
-            currentIndex: 0,
-            selectedItemColor: AppTheme.primaryColor,
-            unselectedItemColor: Colors.grey,
-            selectedFontSize: 14,
-            unselectedFontSize: 12,
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_rounded, size: 28),
-                label: 'Inicio',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.emoji_events_rounded, size: 28),
-                label: 'Logros',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_rounded, size: 28),
-                label: 'Perfil',
-              ),
-            ],
-            onTap: (index) {
-              if (index == 2) {
-                // Logout
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    title: Row(
-                      children: [
-                        Icon(Icons.logout, color: AppTheme.dangerColor),
-                        const SizedBox(width: 10),
-                        const Text('Cerrar Sesión'),
-                      ],
-                    ),
-                    content: const Text('¿Quieres salir de tu cuenta?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancelar'),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.dangerColor,
-                        ),
-                        onPressed: () async {
-                          await authProvider.logout();
-                          if (mounted) {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                              '/login',
-                              (route) => false,
-                            );
-                          }
-                        },
-                        child: const Text('Salir'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-          ),
-        ),
       ),
     );
   }
 
-  Widget _buildSubjectCard(BuildContext context, dynamic subject) {
+  Widget _buildInfoChip({required IconData icon, required String label, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProgressCard(BuildContext context, dynamic gamification) {
+    return Container(
+      margin: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.borderColor,
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Encabezado de progreso
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Tu progreso',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${gamification.experiencePoints}/${gamification.experienceForNextLevel} XP',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Barra de progreso minimalista
+          Stack(
+            children: [
+              Container(
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              FractionallySizedBox(
+                widthFactor: gamification.progressToNextLevel,
+                child: Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Estadísticas
+          Row(
+            children: [
+              _buildStatItem(
+                icon: Icons.local_fire_department_rounded,
+                value: '${gamification.streak.currentStreak}',
+                label: 'días de racha',
+                color: AppTheme.dangerColor,
+              ),
+              const SizedBox(width: 24),
+              _buildStatItem(
+                icon: Icons.emoji_events_rounded,
+                value: '${gamification.achievementsUnlocked.length}',
+                label: 'logros',
+                color: AppTheme.rewardColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: color, size: 18),
+        ),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppTheme.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMinimalistSubjectCard(BuildContext context, dynamic subject) {
     Color cardColor;
-    Color lightColor;
-    
+
     if (subject.name == 'Matemáticas') {
       cardColor = AppTheme.mathColor;
-      lightColor = AppTheme.mathColor.withOpacity(0.15);
     } else if (subject.name == 'Lengua') {
       cardColor = AppTheme.languageColor;
-      lightColor = AppTheme.languageColor.withOpacity(0.15);
     } else {
       cardColor = AppTheme.primaryColor;
-      lightColor = AppTheme.primaryColor.withOpacity(0.15);
     }
 
     return Hero(
@@ -450,72 +355,55 @@ class _ChildHomeScreenState extends State<ChildHomeScreen> {
               arguments: {'subjectId': subject.id},
             );
           },
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [lightColor, cardColor.withOpacity(0.05)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24),
+              color: AppTheme.cardBackground,
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: cardColor.withOpacity(0.3),
-                width: 2,
+                color: AppTheme.borderColor,
+                width: 1.5,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: cardColor.withOpacity(0.2),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Ícono minimalista
                   Container(
-                    padding: const EdgeInsets.all(18),
+                    width: 64,
+                    height: 64,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [cardColor, cardColor.withOpacity(0.8)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: cardColor.withOpacity(0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
+                      color: cardColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
                       _getIconData(subject.icon),
-                      size: 44,
-                      color: Colors.white,
+                      size: 32,
+                      color: cardColor,
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
+                  // Nombre de la materia
                   Text(
                     subject.name,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: cardColor,
-                          fontSize: 22,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textPrimary,
                         ),
                   ),
-                  const SizedBox(height: 6),
+
+                  const SizedBox(height: 8),
+
+                  // Descripción
                   Text(
                     subject.description,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: const Color(0xFF5A6C7D),
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -528,14 +416,108 @@ class _ChildHomeScreenState extends State<ChildHomeScreen> {
     );
   }
 
+  Widget _buildMinimalistBottomNav(BuildContext context, AuthProvider authProvider) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.cardBackground,
+        border: Border(
+          top: BorderSide(
+            color: AppTheme.borderColor,
+            width: 1,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(Icons.home_rounded, 'Inicio', true, () {}),
+              _buildNavItem(Icons.emoji_events_rounded, 'Logros', false, () {}),
+              _buildNavItem(Icons.person_rounded, 'Perfil', false, () {
+                _showLogoutDialog(context, authProvider);
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label, bool isActive, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: isActive ? AppTheme.primaryColor.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: isActive ? AppTheme.primaryColor : AppTheme.textTertiary,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                color: isActive ? AppTheme.primaryColor : AppTheme.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AuthProvider authProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Cerrar Sesión'),
+        content: const Text('¿Quieres salir de tu cuenta?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.dangerColor,
+            ),
+            onPressed: () async {
+              await authProvider.logout();
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text('Salir'),
+          ),
+        ],
+      ),
+    );
+  }
+
   IconData _getIconData(String iconName) {
     switch (iconName) {
       case 'calculate':
-        return Icons.calculate;
+        return Icons.calculate_rounded;
       case 'menu_book':
-        return Icons.menu_book;
+        return Icons.menu_book_rounded;
       default:
-        return Icons.school;
+        return Icons.school_rounded;
     }
   }
 }
