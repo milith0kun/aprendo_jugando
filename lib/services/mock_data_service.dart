@@ -2820,7 +2820,7 @@ class MockDataService {
             'id': 'q3',
             'text': '¿Cómo se escribe correctamente?',
             'type': 'multiple_choice',
-            'options': ['Vien', 'Bien', 'Bien', 'Vién'],
+            'options': ['Vien', 'Bien', 'Byen', 'Vién'],
             'correctAnswer': 'Bien',
             'explanation': 'Se escribe "bien" con B. Las palabras que empiezan con "bie-" llevan B.',
             'hints': ['Bie-, bene-, bon- llevan B'],
