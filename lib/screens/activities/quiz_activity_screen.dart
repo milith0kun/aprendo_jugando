@@ -31,6 +31,7 @@ class _QuizActivityScreenState extends State<QuizActivityScreen>
   bool _isLoading = true;
   bool _showFeedback = false;
   bool? _lastAnswerCorrect;
+  String? _readingText; // Texto de lectura para comprensión lectora
 
   late AnimationController _questionController;
   late Animation<Offset> _slideAnimation;
@@ -77,9 +78,23 @@ class _QuizActivityScreenState extends State<QuizActivityScreen>
 
     if (activity != null && activity.type == 'quiz') {
       final content = QuizContent.fromJson(activity.content as Map<String, dynamic>);
+
+      // Filtrar preguntas que no son de tipo text_display
+      // Las preguntas text_display se usan para mostrar texto de lectura
+      final actualQuestions = content.questions
+          .where((q) => q.type != 'text_display')
+          .toList();
+
+      // Si hay preguntas text_display, usar su texto, sino usar el campo text del content
+      final textDisplayQuestion = content.questions
+          .firstWhere((q) => q.type == 'text_display',
+              orElse: () => content.questions.first);
+
       setState(() {
         _activity = activity;
-        _questions = content.questions;
+        _questions = actualQuestions;
+        _readingText = content.text ??
+            (textDisplayQuestion.type == 'text_display' ? textDisplayQuestion.text : null);
         _isLoading = false;
       });
       _questionController.forward();
@@ -389,6 +404,75 @@ class _QuizActivityScreenState extends State<QuizActivityScreen>
                   ),
 
                   const SizedBox(height: 24),
+
+                  // Texto de lectura (si existe)
+                  if (_readingText != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppTheme.cardBackground,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppTheme.primaryColor.withOpacity(0.3),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryColor.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryColor.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.menu_book_rounded,
+                                  color: AppTheme.primaryColor,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                '📖 Lee con atención',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.backgroundColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _readingText!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                height: 1.6,
+                                color: AppTheme.textPrimary,
+                              ),
+                              textAlign: TextAlign.justify,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Pregunta
                   Container(

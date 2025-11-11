@@ -65,20 +65,23 @@ class Activity {
 // Quiz specific models
 class QuizContent {
   final List<QuizQuestion> questions;
+  final String? text; // Texto opcional para actividades de comprensión lectora
 
-  QuizContent({required this.questions});
+  QuizContent({required this.questions, this.text});
 
   factory QuizContent.fromJson(Map<String, dynamic> json) {
     return QuizContent(
       questions: (json['questions'] as List<dynamic>)
           .map((q) => QuizQuestion.fromJson(q as Map<String, dynamic>))
           .toList(),
+      text: json['text'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'questions': questions.map((q) => q.toJson()).toList(),
+      if (text != null) 'text': text,
     };
   }
 }
