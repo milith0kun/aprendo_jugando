@@ -16,6 +16,7 @@ import 'screens/child/topics_screen.dart';
 import 'screens/child/achievements_screen.dart';
 import 'screens/activities/activities_list_screen.dart';
 import 'screens/activities/quiz_activity_screen.dart';
+import 'screens/activities/matching_activity_screen.dart';
 import 'screens/activities/completion_screen.dart';
 
 void main() {
@@ -82,6 +83,13 @@ class AprendoJugandoApp extends StatelessWidget {
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
                 builder: (_) => QuizActivityScreen(
+                  activityId: args['activityId'] as String,
+                ),
+              );
+            case '/matching-activity':
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                builder: (_) => MatchingActivityScreen(
                   activityId: args['activityId'] as String,
                 ),
               );

@@ -68,18 +68,27 @@ class _ActivitiesListScreenState extends State<ActivitiesListScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          if (activity.type == 'quiz') {
-            Navigator.of(context).pushNamed(
-              '/quiz-activity',
-              arguments: {'activityId': activity.id},
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Este tipo de actividad aún no está implementado'),
-              ),
-            );
+          String route;
+          switch (activity.type) {
+            case 'quiz':
+              route = '/quiz-activity';
+              break;
+            case 'matching':
+              route = '/matching-activity';
+              break;
+            default:
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Tipo de actividad "${activity.type}" no implementado'),
+                ),
+              );
+              return;
           }
+
+          Navigator.of(context).pushNamed(
+            route,
+            arguments: {'activityId': activity.id},
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),

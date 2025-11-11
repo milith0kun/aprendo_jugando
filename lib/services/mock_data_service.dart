@@ -377,6 +377,91 @@ class MockDataService {
       imageUrls: [],
       createdAt: DateTime.now().subtract(const Duration(days: 6)),
     ),
+    // Matching Activities
+    Activity(
+      id: 'activity5',
+      topicId: 'topic1',
+      type: 'matching',
+      title: 'Empareja Números y Palabras',
+      instructions: 'Une cada número con su palabra correspondiente',
+      difficulty: 1,
+      recommendedGrade: 1,
+      estimatedMinutes: 10,
+      points: 80,
+      content: {
+        'pairs': [
+          {
+            'id': 'pair1',
+            'left': '1',
+            'right': 'Uno',
+          },
+          {
+            'id': 'pair2',
+            'left': '2',
+            'right': 'Dos',
+          },
+          {
+            'id': 'pair3',
+            'left': '3',
+            'right': 'Tres',
+          },
+          {
+            'id': 'pair4',
+            'left': '4',
+            'right': 'Cuatro',
+          },
+          {
+            'id': 'pair5',
+            'left': '5',
+            'right': 'Cinco',
+          },
+        ],
+      },
+      imageUrls: [],
+      createdAt: DateTime.now().subtract(const Duration(days: 5)),
+    ),
+    Activity(
+      id: 'activity6',
+      topicId: 'topic4',
+      type: 'matching',
+      title: 'Animales y Sus Sonidos',
+      instructions: 'Conecta cada animal con el sonido que hace',
+      difficulty: 1,
+      recommendedGrade: 1,
+      estimatedMinutes: 8,
+      points: 70,
+      content: {
+        'pairs': [
+          {
+            'id': 'pair1',
+            'left': '🐶 Perro',
+            'right': 'Guau guau',
+          },
+          {
+            'id': 'pair2',
+            'left': '🐱 Gato',
+            'right': 'Miau',
+          },
+          {
+            'id': 'pair3',
+            'left': '🐮 Vaca',
+            'right': 'Muuu',
+          },
+          {
+            'id': 'pair4',
+            'left': '🐷 Cerdo',
+            'right': 'Oinc oinc',
+          },
+          {
+            'id': 'pair5',
+            'left': '🐔 Gallina',
+            'right': 'Clo clo',
+          },
+        ],
+      },
+      imageUrls: [],
+      createdAt: DateTime.now().subtract(const Duration(days: 4)),
+    ),
   ];
 
   // Mock Progress
