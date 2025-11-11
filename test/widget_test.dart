@@ -1,30 +1,72 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Tests for Aprendo Jugando application
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
-import 'package:flutter_application_2/main.dart';
+import 'package:aprendo_jugando/main.dart';
+import 'package:aprendo_jugando/providers/auth_provider.dart';
+import 'package:aprendo_jugando/providers/content_provider.dart';
+import 'package:aprendo_jugando/providers/progress_provider.dart';
+import 'package:aprendo_jugando/screens/splash_screen.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('App Initialization Tests', () {
+    testWidgets('App loads with splash screen', (WidgetTester tester) async {
+      await tester.pumpWidget(const AprendoJugandoApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      // Verify splash screen is displayed
+      expect(find.byType(SplashScreen), findsOneWidget);
+      expect(find.text('Aprendo Jugando'), findsOneWidget);
+      expect(find.byIcon(Icons.school), findsOneWidget);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    testWidgets('Providers are initialized', (WidgetTester tester) async {
+      await tester.pumpWidget(const AprendoJugandoApp());
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      final context = tester.element(find.byType(MaterialApp));
+
+      // Verify all providers are available
+      expect(Provider.of<AuthProvider>(context, listen: false), isNotNull);
+      expect(Provider.of<ContentProvider>(context, listen: false), isNotNull);
+      expect(Provider.of<ProgressProvider>(context, listen: false), isNotNull);
+    });
+
+    testWidgets('Theme is correctly applied', (WidgetTester tester) async {
+      await tester.pumpWidget(const AprendoJugandoApp());
+
+      final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
+
+      expect(materialApp.title, 'Aprendo Jugando');
+      expect(materialApp.debugShowCheckedModeBanner, false);
+      expect(materialApp.theme, isNotNull);
+    });
+  });
+
+  group('Navigation Tests', () {
+    testWidgets('Initial route is splash screen', (WidgetTester tester) async {
+      await tester.pumpWidget(const AprendoJugandoApp());
+
+      expect(find.byType(SplashScreen), findsOneWidget);
+    });
+  });
+
+  group('Splash Screen Tests', () {
+    testWidgets('Splash screen displays branding', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => AuthProvider()),
+            ChangeNotifierProvider(create: (_) => ContentProvider()),
+            ChangeNotifierProvider(create: (_) => ProgressProvider()),
+          ],
+          child: MaterialApp(home: SplashScreen()),
+        ),
+      );
+
+      expect(find.text('Aprendo Jugando'), findsOneWidget);
+      expect(find.text('Aprende mientras te diviertes'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
   });
 }
