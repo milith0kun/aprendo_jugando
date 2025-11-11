@@ -51,8 +51,11 @@ class _ParentDashboardState extends State<ParentDashboard> {
               const Text('No tienes niños registrados'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  // TODO: Navigate to add child
+                onPressed: () async {
+                  final result = await Navigator.of(context).pushNamed('/add-child');
+                  if (result == true && mounted) {
+                    setState(() {});
+                  }
                 },
                 child: const Text('Agregar Niño'),
               ),
@@ -215,6 +218,16 @@ class _ParentDashboardState extends State<ParentDashboard> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.of(context).pushNamed('/add-child');
+          if (result == true && mounted) {
+            setState(() {});
+          }
+        },
+        child: const Icon(Icons.add),
+        tooltip: 'Agregar Niño',
       ),
     );
   }

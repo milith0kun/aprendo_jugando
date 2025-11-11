@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/mock_data_service.dart';
 import '../../config/app_theme.dart';
 
 class ChildLoginScreen extends StatefulWidget {
@@ -59,8 +60,8 @@ class _ChildLoginScreenState extends State<ChildLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final children = authProvider.getChildren();
+    // Obtener todos los niños disponibles directamente del mock data
+    final children = MockDataService.mockChildren;
 
     return Scaffold(
       appBar: AppBar(
