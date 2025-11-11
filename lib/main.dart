@@ -13,6 +13,7 @@ import 'screens/auth/child_login_screen.dart';
 import 'screens/parent/parent_dashboard.dart';
 import 'screens/child/child_home_screen.dart';
 import 'screens/child/topics_screen.dart';
+import 'screens/child/achievements_screen.dart';
 import 'screens/activities/activities_list_screen.dart';
 import 'screens/activities/quiz_activity_screen.dart';
 import 'screens/activities/completion_screen.dart';
@@ -94,6 +95,10 @@ class AprendoJugandoApp extends StatelessWidget {
                   duration: args['duration'] as int,
                   activityTitle: args['activityTitle'] as String,
                 ),
+              );
+            case '/achievements':
+              return MaterialPageRoute(
+                builder: (_) => const AchievementsScreen(),
               );
             default:
               return MaterialPageRoute(

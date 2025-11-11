@@ -376,7 +376,10 @@ class _ChildHomeScreenState extends State<ChildHomeScreen> with SingleTickerProv
           ),
         ],
         onTap: (index) {
-          if (index == 2) {
+          if (index == 1) {
+            // Navigate to Achievements
+            Navigator.of(context).pushNamed('/achievements');
+          } else if (index == 2) {
             // Logout
             showDialog(
               context: context,
